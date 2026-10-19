@@ -32,10 +32,10 @@
       <button id="copy" type="button">Copier le lien</button>
     </div>
     <p id="status" role="status" aria-live="polite"></p>
-    <a class="back" href="code-arbre.html">← Retour au site</a>
+    <a class="back" href="index.html">← Retour au site</a>
   </main>
   <script>
-    const pageUrl=new URL('code-arbre.html',window.location.href);
+    const pageUrl=new URL('./',window.location.href);
     const urlField=document.getElementById('page-url');
     const qrImage=document.getElementById('qr');
     const status=document.getElementById('status');
