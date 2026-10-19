@@ -9,15 +9,15 @@
 :root{
   --bg:#f2f5f1; --surface:#ffffff; --ink:#1c2a24; --muted:#5c6b63; --line:#d3dbd5;
   --accent:#1f6b4f; --accent-ink:#ffffff; --field:#ffffff; --focus:#0b7285;
-  --paper:#ffffff; --paper-ink:#7a7a7a; --paper-line:#e3e3e3;
+  --paper:#ffffff; --paper-ink:#7a7a7a; --paper-line:#e3e3e3; --danger:#b42318;
   --font:'Andika','Atkinson Hyperlegible','Segoe UI',system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141b17; --surface:#1d2621; --ink:#e7eee9; --muted:#9baba3; --line:#35423b;
-  --accent:#7cc9a6; --accent-ink:#0f1a14; --field:#16201b; --focus:#6cc4d6; color-scheme:dark}}
+  --accent:#7cc9a6; --accent-ink:#0f1a14; --field:#16201b; --focus:#6cc4d6; --sw-ring:#cfd8d3; --danger:#f58b80; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141b17; --surface:#1d2621; --ink:#e7eee9; --muted:#9baba3; --line:#35423b;
-  --accent:#7cc9a6; --accent-ink:#0f1a14; --field:#16201b; --focus:#6cc4d6; color-scheme:dark}
+  --accent:#7cc9a6; --accent-ink:#0f1a14; --field:#16201b; --focus:#6cc4d6; --sw-ring:#cfd8d3; --danger:#f58b80; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;
   padding-inline:16px;padding-block:24px 48px}
@@ -33,6 +33,10 @@ label.t{display:block;font-weight:700;font-size:.85rem;letter-spacing:.04em;text
 textarea{width:100%;min-height:92px;resize:vertical;font:inherit;font-size:1.15rem;padding:10px 12px;border:1px solid var(--line);
   border-radius:8px;background:var(--field);color:var(--ink)}
 select{font:inherit;padding:7px 32px 7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);max-width:100%}
+.words-box{position:relative}
+.words-box textarea{padding-right:44px}
+.clear-words{position:absolute;top:6px;right:6px;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);font-size:1.4rem;line-height:1;cursor:pointer}
+.clear-words:hover{background:var(--bg);color:var(--ink)}
 textarea:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .hint{font-size:.85rem;color:var(--muted);margin:6px 0 0}
 
@@ -44,6 +48,7 @@ textarea:focus-visible,button:focus-visible,input:focus-visible,select:focus-vis
 .check input{width:18px;height:18px;accent-color:var(--accent)}
 .image-results{margin:14px 0 20px;display:flex;flex-direction:column;gap:16px}
 .image-results[hidden]{display:none}
+.image-results>.btn{align-self:flex-start}
 .image-results h2,.image-results h3{margin:0 0 8px;font-size:1rem}
 .image-results h3{font-size:.95rem}
 .image-result-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
@@ -57,6 +62,7 @@ textarea:focus-visible,button:focus-visible,input:focus-visible,select:focus-vis
 .legend{grid-column:1/-1;border-top:1px solid var(--line);padding-top:14px;display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;font-size:.92rem}
 .legend .item{display:flex;align-items:center;gap:8px}
 .sw{width:26px;height:6px;border-radius:3px;display:inline-block}
+.sw-black{box-shadow:0 0 0 1.5px var(--sw-ring,transparent)}
 .letters{display:flex;gap:2px;font-weight:700;font-size:1.15rem;letter-spacing:.02em;flex-wrap:wrap}
 .cards{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(min(100%,430px),1fr))}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-width:0;overflow:hidden}
@@ -64,15 +70,27 @@ textarea:focus-visible,button:focus-visible,input:focus-visible,select:focus-vis
 .chead{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;padding:12px 14px}
 .pill{font-size:.85rem;padding:2px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
 .pill b{font-weight:700}
+.card-article{font-size:.9rem;padding:4px 28px 4px 10px}
 .spacer{flex:1}
 .btn{font:inherit;font-size:.9rem;padding:5px 12px;border-radius:8px;border:1px solid var(--line);background:var(--field);color:var(--ink);cursor:pointer}
 .btn:hover{border-color:var(--accent)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.6;cursor:progress}
+.ico{width:16px;height:16px;flex:none}
+.cactions{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;padding:10px 14px;border-top:1px dashed var(--line)}
+.cactions .btn{display:inline-flex;align-items:center;gap:6px}
+.bgroup{display:flex;flex-wrap:wrap;gap:6px;padding:4px;border-radius:10px;background:var(--bg)}
+.btn-img{border-color:transparent}
+.btn-danger{color:var(--danger);border-color:transparent;background:transparent}
+.btn-danger:hover{border-color:var(--danger)}
+.btn-edit:not(.primary){color:var(--accent);border-color:var(--accent);font-weight:700}
+.btn-reveal[aria-pressed="true"]{background:var(--bg);border-color:var(--ink)}
 .paper{background:var(--paper);border-block:1px solid var(--paper-line);padding:10px 14px;display:flex;justify-content:center}
 .paper{flex-direction:column;align-items:center;gap:10px}
 .pic{display:block;max-height:200px;max-width:min(70%,260px);width:auto;height:auto;object-fit:contain}
 .image-source{font-size:.8rem;color:var(--muted)}
-.paper svg{display:block;height:auto}
+.paper .image-credit{font-size:.8rem;color:var(--muted);text-align:center;margin-bottom:12px}
+.paper svg{display:block;height:auto;overflow:visible}
 .paper text{font-family:var(--font)}
 .edit{padding:14px;display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line)}
 .chips{display:flex;flex-wrap:wrap;align-items:center;gap:4px 2px}
@@ -95,7 +113,7 @@ textarea:focus-visible,button:focus-visible,input:focus-visible,select:focus-vis
 .empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
 .note{font-size:.85rem;color:var(--muted);max-width:80ch}
 @media print{
-  body{background:#fff;padding:0}.panel,.edit,.image-results,.chead .btn,h1,.lead,.note,.legend{display:none!important}
+  body{background:#fff;padding:0}.panel,.edit,.image-results,.chead .btn,.cactions,h1,.lead,.note,.legend{display:none!important}
   .card{break-inside:avoid;border:0}.cards{grid-template-columns:1fr 1fr}
 }
 </style>
@@ -112,32 +130,13 @@ textarea:focus-visible,button:focus-visible,input:focus-visible,select:focus-vis
   <section class="panel" aria-label="Réglages">
     <div>
       <label class="t" for="words">Mots à encoder</label>
-      <textarea id="words" spellcheck="false" autocomplete="off">abricot, aquarium, ascenseur, anniversaire, panier</textarea>
+      <div class="words-box">
+        <textarea id="words" spellcheck="false" autocomplete="off">abricot, aquarium, ascenseur, anniversaire, panier</textarea>
+        <button type="button" id="clear-words" class="clear-words" aria-label="Effacer tous les mots" title="Effacer tous les mots">×</button>
+      </div>
       <p class="hint">Sépare les mots par une virgule ou un retour à la ligne (24 mots maximum).</p>
     </div>
     <div class="opts">
-      <div>
-        <span class="t label t" style="display:block;font-weight:700;font-size:.85rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Article devant le codage</span>
-        <select id="article" aria-label="Article devant le codage">
-          <option value="">Aucun article</option>
-          <optgroup label="Articles indéfinis">
-            <option value="un">un</option>
-            <option value="une">une</option>
-            <option value="des">des</option>
-          </optgroup>
-          <optgroup label="Articles définis">
-            <option value="le">le</option>
-            <option value="la">la</option>
-            <option value="l’">l’</option>
-            <option value="les">les</option>
-          </optgroup>
-          <optgroup label="Articles partitifs">
-            <option value="du">du</option>
-            <option value="de la">de la</option>
-            <option value="de l’">de l’</option>
-          </optgroup>
-        </select>
-      </div>
       <div>
         <span class="t" style="display:block;font-weight:700;font-size:.85rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Affichage des cartes</span>
         <div class="seg" id="mode" role="group" aria-label="Affichage">
@@ -157,7 +156,7 @@ textarea:focus-visible,button:focus-visible,input:focus-visible,select:focus-vis
     <div class="legend" aria-label="Légende">
       <span class="item"><span class="sw" style="background:#8a8a8a"></span>Graphème principal du son</span>
       <span class="item"><span class="sw" style="background:#e6007e"></span><span class="sw" style="background:#6bb52f"></span><span class="sw" style="background:#2fb0e6"></span>Autres écritures du son</span>
-      <span class="item"><span class="sw" style="background:#1c1c1c"></span>-er des verbes</span>
+      <span class="item"><span class="sw sw-black" style="background:#1c1c1c"></span>-er des verbes</span>
       <span class="item"><svg width="20" height="20" viewBox="-10 -10 20 20" aria-hidden="true"><circle r="8" fill="none" stroke="#8a8a8a" stroke-width="1.5"/><circle cx="-3" cy="-2" r="1.2" fill="#8a8a8a"/><circle cx="3" cy="-2" r="1.2" fill="#8a8a8a"/><path d="M-3 2.5L3 6.5M3 2.5L-3 6.5" fill="none" stroke="#6bb52f" stroke-width="1.4" stroke-linecap="round"/></svg>Lettre muette</span>
       <span class="item"><span class="letters" id="lettersKey" aria-label="Couleur de chaque lettre"></span></span>
     </div>
@@ -388,7 +387,17 @@ function stats(card){
 /* ---------- interface ---------- */
 function loadPics(){try{return JSON.parse(localStorage.getItem('arbre-pics')||'{}')||{}}catch(e){return{}}}
 function savePics(){try{localStorage.setItem('arbre-pics',JSON.stringify(state.pics))}catch(e){}}
-const state={article:'',mode:'answer',font:'script',showImg:true,pics:loadPics(),imgFor:null,imageResults:{},imageErrors:{},store:new Map(),order:[]};
+const svgIcon=d=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICON={
+  search:svgIcon('<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'),
+  image:svgIcon('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 8"/>'),
+  trash:svgIcon('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'),
+  eye:svgIcon('<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
+  pencil:svgIcon('<path d="M4 20h4L19 9l-4-4L4 16z"/>'),
+  close:svgIcon('<path d="M6 6l12 12M18 6L6 18"/>')
+};
+const ARTICLES=[['Articles indéfinis',['un','une','des']],['Articles définis',['le','la','l’','les']],['Articles partitifs',['du','de la','de l’']]];
+const state={mode:'answer',font:'script',showImg:true,pics:loadPics(),imgFor:null,imageResults:{},imagePages:{},imageErrors:{},store:new Map(),order:[]};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 
@@ -400,7 +409,7 @@ function getCard(word){
   let c=state.store.get(word);
   if(!c){
     const saved=state.pics[word];
-    c={word,verb:false,open:false,sel:0,img:typeof saved==='string'?{src:saved,source:null}:saved||null};
+    c={word,article:'',verb:false,open:false,sel:0,img:typeof saved==='string'?{src:saved,source:null}:saved||null};
     compute(c);state.store.set(word,c);
   }
   return c;
@@ -412,8 +421,9 @@ function svgCard(card){
     marelle:["'Marelle','Segoe Script',cursive",34]};
   const[ff,fs]=FONTS[state.font]||FONTS.script;
   const conn=state.font==='marelle';
-  const u=30,ig=0,gg=12,barY=showAns?(conn?116:66):26,letterY=conn?60:50;
-  const art=state.article;
+  const top=showAns?(conn?26:14):0;
+  const u=30,ig=0,gg=12,barY=(showAns?(conn?116:66):26)+top,letterY=(conn?60:50)+top;
+  const art=card.article;
   const artW=(art&&!conn)?(art.length*19+26):0;
   let x=14+artW;const pos=[];
   card.g.forEach(gr=>{
@@ -524,22 +534,27 @@ function cardHTML(card){
   const imageResults=results!==undefined?`<section class="image-results" aria-label="Résultats d’images pour ${w}"><h3>Choisis une illustration pour « ${w} »</h3>${results===null?'<p class="hint">Recherche en cours…</p>':results.length?`<div class="image-result-list">${results.map((image,i)=>{
     const chosen=card.img?.id===image.id;
     return `<article class="image-result"><img src="${esc(image.thumbnail)}" alt="" data-act="preview" data-w="${w}" data-i="${i}" loading="lazy"><div class="image-title">${esc(image.title||card.word)}</div><div class="image-credit">${esc(image.creator||'Auteur non indiqué')} · <a href="${esc(image.source)}" target="_blank" rel="noopener noreferrer">Source</a> · <a href="${esc(image.licenseUrl)}" target="_blank" rel="noopener noreferrer">Licence ${esc(image.license)}</a></div><button type="button" class="btn" data-act="pickimg" data-w="${w}" data-i="${i}" ${chosen?'disabled':''}>${chosen?'Image choisie':'Choisir cette image'}</button></article>`;
-  }).join('')}</div>`:`<p class="hint">${esc(state.imageErrors[card.word]||'Aucun résultat. Essaie d’ajouter une image depuis ton appareil.')}</p>`}</section>`:'';
+  }).join('')}</div>`:`<p class="hint">${esc(state.imageErrors[card.word]||'Aucun résultat. Essaie d’ajouter une image depuis ton appareil.')}</p>`}${results===null?'':(state.imagePages[card.word]||1)>1&&!results.length?`<button type="button" class="btn" data-act="searchimg" data-w="${w}">Revoir les premières images</button>`:results.length?`<button type="button" class="btn" data-act="moreimg" data-w="${w}">Voir d’autres images</button>`:''}</section>`:'';
   return `<article class="card${card.open?' open':''}">
     <div class="chead">
+      <select class="card-article" data-act="article" data-w="${w}" aria-label="Article devant le codage de ${w}"><option value="">Aucun article</option>${ARTICLES.map(([label,list])=>`<optgroup label="${label}">${list.map(a=>`<option value="${a}"${card.article===a?' selected':''}>${a}</option>`).join('')}</optgroup>`).join('')}</select>
       <span class="pill"><b>${st.letters}</b> lettres</span>
       <span class="pill"><b>${st.graphemes}</b> graphèmes</span>
       <span class="pill"><b>${st.syl}</b> syllabe${st.syl>1?'s':''}</span>
       ${st.mutes?`<span class="pill"><b>${st.mutes}</b> lettre${st.mutes>1?'s':''} muette${st.mutes>1?'s':''}</span>`:''}
-      <span class="spacer"></span>
       ${isEr?`<label class="check" style="font-size:.9rem"><input type="checkbox" data-act="verb" data-w="${w}" ${card.verb?'checked':''}> verbe</label>`:''}
-      ${state.mode==='hidden'?`<button type="button" class="btn" data-act="reveal" data-w="${w}" aria-pressed="${!!card.reveal}">${card.reveal?'Masquer le mot':'Révéler le mot'}</button>`:''}
-      <button type="button" class="btn" data-act="searchimg" data-w="${w}" ${results===null?'disabled':''}>${results===null?'Recherche en cours…':'Chercher des images sur Openverse'}</button>
-      <button type="button" class="btn" data-act="img" data-w="${w}">${card.img?'Changer l’image':'Ajouter une image'}</button>
-      ${card.img?`<button type="button" class="btn" data-act="rmimg" data-w="${w}">Retirer l’image</button>`:''}
-      <button type="button" class="btn${card.open?' primary':''}" data-act="toggle" data-w="${w}" aria-expanded="${card.open}">${card.open?'Fermer':'Corriger le codage'}</button>
     </div>
-    <div class="paper">${card.img&&state.showImg?`<img class="pic" src="${esc(card.img.src)}" data-w="${w}" alt="Illustration de ${w}">${card.img.source?`<div class="image-credit"><a class="image-source" href="${esc(card.img.source)}" target="_blank" rel="noopener noreferrer">${esc(card.img.title||'Source de l’image')}</a>${card.img.creator?` — ${esc(card.img.creator)}`:''}${card.img.license&&card.img.licenseUrl?` · <a href="${esc(card.img.licenseUrl)}" target="_blank" rel="noopener noreferrer">Licence ${esc(card.img.license)}</a>`:''}</div>`:''}`:''}${svgCard(card)}</div>
+    <div class="cactions">
+      <div class="bgroup" role="group" aria-label="Image de ${w}">
+        <button type="button" class="btn btn-img" data-act="searchimg" data-w="${w}" ${results===null?'disabled':''}>${ICON.search}${results===null?'Recherche…':'Chercher sur Openverse'}</button>
+        <button type="button" class="btn btn-img" data-act="img" data-w="${w}">${ICON.image}${card.img?'Changer l’image':'Ajouter une image'}</button>
+        ${card.img?`<button type="button" class="btn btn-danger" data-act="rmimg" data-w="${w}">${ICON.trash}Retirer</button>`:''}
+      </div>
+      <span class="spacer"></span>
+      ${state.mode==='hidden'?`<button type="button" class="btn btn-reveal" data-act="reveal" data-w="${w}" aria-pressed="${!!card.reveal}">${ICON.eye}${card.reveal?'Masquer le mot':'Révéler le mot'}</button>`:''}
+      <button type="button" class="btn btn-edit${card.open?' primary':''}" data-act="toggle" data-w="${w}" aria-expanded="${card.open}">${card.open?`${ICON.close}Fermer`:`${ICON.pencil}Corriger le codage`}</button>
+    </div>
+    <div class="paper">${card.img&&state.showImg?`<img class="pic" src="${esc(card.img.src)}" data-w="${w}" alt="Illustration de ${w}">${card.img.source?`<div class="image-credit"><a class="image-source" href="${esc(card.img.source)}" target="_blank" rel="noopener noreferrer"${card.img.title?` title="${esc(card.img.title)}"`:''}>Source de l’image</a>${card.img.creator?` — ${esc(card.img.creator)}`:''}${card.img.license&&card.img.licenseUrl?` · <a href="${esc(card.img.licenseUrl)}" target="_blank" rel="noopener noreferrer">Licence ${esc(card.img.license)}</a>`:''}</div>`:''}`:''}${svgCard(card)}</div>
     ${imageResults}
     ${card.open?editHTML(card):''}
   </article>`;
@@ -557,15 +572,16 @@ function render(){
 
 /* ---------- événements ---------- */
 $('words').addEventListener('input',render);
+$('clear-words').addEventListener('click',()=>{
+  $('words').value='';
+  render();
+  $('words').focus();
+});
 $('mode').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   state.mode=b.dataset.v;
   [...$('mode').children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
   state.store.forEach(c=>{c.reveal=false});
-  render();
-});
-$('article').addEventListener('change',e=>{
-  state.article=e.target.value;
   render();
 });
 function target(e){
@@ -585,6 +601,7 @@ $('cards').addEventListener('click',e=>{
     case'toggle':card.open=!card.open;break;
     case'reveal':card.reveal=!card.reveal;break;
     case'searchimg':searchCardImages(card.word);return;
+    case'moreimg':searchCardImages(card.word,(state.imagePages[card.word]||1)+1);return;
     case'pickimg':{
       const image=state.imageResults[card.word]?.[i];
       if(!image)return;
@@ -625,7 +642,8 @@ $('cards').addEventListener('click',e=>{
 $('cards').addEventListener('change',e=>{
   const t=target(e);if(!t)return;
   const{el,card,act,i}=t;
-  if(act==='verb'){card.verb=el.checked;const keep=card.open,sel=card.sel;compute(card);card.open=keep;card.sel=sel;render()}
+  if(act==='article'){card.article=el.value;render()}
+  else if(act==='verb'){card.verb=el.checked;const keep=card.open,sel=card.sel;compute(card);card.open=keep;card.sel=sel;render()}
   else if(act==='mute'){
     const g=card.g[i];g.mute=el.checked;
     if(g.mute){g.ipa='';g.cols=[...g.t].map(ch=>lcol(ch))}
@@ -669,8 +687,8 @@ async function setImage(word,file){
   const card=state.store.get(word);if(!card)return;
   card.img={src:data,source:null};state.pics[word]=card.img;savePics();render();
 }
-async function findOpenverseImages(word){
-  const params=new URLSearchParams({q:word,license:'cc0,by,by-sa',page_size:'6'});
+async function findOpenverseImages(word,page=1){
+  const params=new URLSearchParams({q:word,license:'cc0,by,by-sa',page_size:'6',page:String(page)});
   const response=await fetch(`https://api.openverse.org/v1/images/?${params}`);
   if(!response.ok)throw new Error(`Réponse HTTP ${response.status}`);
   const data=await response.json();
@@ -681,15 +699,17 @@ async function findOpenverseImages(word){
     licenseUrl:image.license_url
   }));
 }
-async function searchCardImages(word){
+async function searchCardImages(word,page=1){
   state.imageResults[word]=null;
+  state.imagePages[word]=page;
   delete state.imageErrors[word];
   render();
   try{
-    state.imageResults[word]=await findOpenverseImages(word);
+    state.imageResults[word]=await findOpenverseImages(word,page);
+    if(page>1&&!state.imageResults[word].length)state.imageErrors[word]='Il n’y a pas d’autres images pour ce mot.';
   }catch(error){
     state.imageResults[word]=[];
-    state.imageErrors[word]=`Erreur de recherche : ${error.message}`;
+    state.imageErrors[word]=page>1?'Il n’y a pas d’autres images pour ce mot.':`Erreur de recherche : ${error.message}`;
   }
   render();
 }
