@@ -24,6 +24,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16p
 .wrap{max-width:1080px;margin-inline:auto;display:flex;flex-direction:column;gap:24px}
 h1{font-size:1.7rem;line-height:1.2;margin:0;text-wrap:balance}
 .lead{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.share-btn{flex:none;text-decoration:none}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:18px;
   grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
 @media (max-width:760px){.panel{grid-template-columns:minmax(0,1fr)}}
@@ -100,7 +102,10 @@ textarea:focus-visible,button:focus-visible,input:focus-visible,select:focus-vis
 
 <div class="wrap">
   <header>
-    <h1>Encodeur Arbre des mots</h1>
+    <div class="header-top">
+      <h1>Encodeur Arbre des mots</h1>
+      <a class="btn primary share-btn" href="partager.html">Partager</a>
+    </div>
     <p class="lead">Tape un ou plusieurs mots. Chaque carte montre les graphèmes en couleur, les lettres muettes et les arcs de syllabes.</p>
   </header>
 
