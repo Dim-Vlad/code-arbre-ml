@@ -400,7 +400,7 @@ const ICON={
   close:svgIcon('<path d="M6 6l12 12M18 6L6 18"/>')
 };
 const ARTICLES=[['Articles indéfinis',['un','une','des']],['Articles définis',['le','la','l’','les']],['Articles partitifs',['du','de la','de l’']]];
-const state={mode:'answer',font:'script',showImg:true,pics:loadPics(),imgFor:null,imageResults:{},imagePages:{},imageErrors:{},store:new Map(),order:[]};
+const state={mode:'answer',font:'script',showImg:true,pics:loadPics(),imgFor:null,imageResults:{},imagePages:{},imageProviders:{},imageErrors:{},store:new Map(),order:[]};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 
@@ -534,10 +534,10 @@ function cardHTML(card){
   const st=stats(card),w=esc(card.word);
   const isEr=/er$/.test(card.word);
   const results=state.imageResults[card.word];
-  const imageResults=results!==undefined?`<section class="image-results" aria-label="Résultats d’images pour ${w}"><h3>Choisis une illustration pour « ${w} »</h3>${results===null?'<p class="hint">Recherche en cours…</p>':results.length?`<div class="image-result-list">${results.map((image,i)=>{
+  const imageResults=results!==undefined?`<section class="image-results" aria-label="Résultats d’images pour ${w}"><h3>Choisis une illustration pour « ${w} »</h3>${results&&state.imageProviders[card.word]?`<p class="hint">Images trouvées sur ${IMAGE_PROVIDERS[state.imageProviders[card.word]]}</p>`:''}${results===null?'<p class="hint">Recherche en cours…</p>':results.length?`<div class="image-result-list">${results.map((image,i)=>{
     const chosen=card.img?.id===image.id;
     return `<article class="image-result"><img src="${esc(image.thumbnail)}" alt="" data-act="preview" data-w="${w}" data-i="${i}" loading="lazy"><div class="image-title">${esc(image.title||card.word)}</div><div class="image-credit">${esc(image.creator||'Auteur non indiqué')} · <a href="${esc(image.source)}" target="_blank" rel="noopener noreferrer">Source</a> · <a href="${esc(image.licenseUrl)}" target="_blank" rel="noopener noreferrer">Licence ${esc(image.license)}</a></div><button type="button" class="btn" data-act="pickimg" data-w="${w}" data-i="${i}" ${chosen?'disabled':''}>${chosen?'Image choisie':'Choisir cette image'}</button></article>`;
-  }).join('')}</div>`:`<p class="hint">${esc(state.imageErrors[card.word]||'Aucun résultat. Essaie d’ajouter une image depuis ton appareil.')}</p>`}${results===null?'':(state.imagePages[card.word]||1)>1&&!results.length?`<button type="button" class="btn" data-act="searchimg" data-w="${w}">Revoir les premières images</button>`:results.length?`<button type="button" class="btn" data-act="moreimg" data-w="${w}">Voir d’autres images</button>`:''}</section>`:'';
+  }).join('')}</div>`:`<p class="hint">${esc(state.imageErrors[card.word]||'Aucun résultat. Essaie d’ajouter une image depuis ton appareil.')}</p>`}${results===null?'':(state.imagePages[card.word]||1)>1&&!results.length?`<button type="button" class="btn" data-act="searchimg" data-w="${w}">Revoir les premières images</button>`:results.length?`<button type="button" class="btn" data-act="moreimg" data-w="${w}">Voir d’autres images</button>`:state.imageErrors[card.word]?`<button type="button" class="btn" data-act="searchimg" data-w="${w}">Réessayer</button>`:''}</section>`:'';
   return `<article class="card${card.open?' open':''}">
     <div class="chead">
       <select class="card-article" data-act="article" data-w="${w}" aria-label="Article devant le codage de ${w}"><option value="">Aucun article</option>${ARTICLES.map(([label,list])=>`<optgroup label="${label}">${list.map(a=>`<option value="${a}"${card.article===a?' selected':''}>${a}</option>`).join('')}</optgroup>`).join('')}</select>
@@ -549,7 +549,7 @@ function cardHTML(card){
     </div>
     <div class="cactions">
       <div class="bgroup" role="group" aria-label="Image de ${w}">
-        <button type="button" class="btn btn-img" data-act="searchimg" data-w="${w}" ${results===null?'disabled':''}>${ICON.search}${results===null?'Recherche…':'Chercher sur Openverse'}</button>
+        <button type="button" class="btn btn-img" data-act="searchimg" data-w="${w}" ${results===null?'disabled':''}>${ICON.search}${results===null?'Recherche…':'Chercher des images'}</button>
         <button type="button" class="btn btn-img" data-act="img" data-w="${w}">${ICON.image}${card.img?'Changer l’image':'Ajouter une image'}</button>
         ${card.img?`<button type="button" class="btn btn-danger" data-act="rmimg" data-w="${w}">${ICON.trash}Retirer</button>`:''}
       </div>
@@ -690,11 +690,19 @@ async function setImage(word,file){
   const card=state.store.get(word);if(!card)return;
   card.img={src:data,source:null};state.pics[word]=card.img;savePics();render();
 }
+const IMAGE_PROVIDERS={openverse:'Openverse',wikimedia:'Wikimedia Commons'};
+function unavailable(name){const e=new Error(`${name} est indisponible pour le moment.`);e.unavailable=true;return e}
+async function fetchJSON(url,name){
+  let response;
+  try{response=await fetch(url,{signal:AbortSignal.timeout(10000)})}
+  catch(error){throw unavailable(name)}
+  if(response.status>=500)throw unavailable(name);
+  if(!response.ok)throw new Error(`Réponse HTTP ${response.status}`);
+  return response.json();
+}
 async function findOpenverseImages(word,page=1){
   const params=new URLSearchParams({q:word,license:'cc0,by,by-sa',page_size:'6',page:String(page)});
-  const response=await fetch(`https://api.openverse.org/v1/images/?${params}`);
-  if(!response.ok)throw new Error(`Réponse HTTP ${response.status}`);
-  const data=await response.json();
+  const data=await fetchJSON(`https://api.openverse.org/v1/images/?${params}`,'Openverse');
   if(data.detail)throw new Error(data.detail);
   return(data.results||[]).filter(image=>image.url&&image.thumbnail&&image.foreign_landing_url&&image.license&&image.license_url).map(image=>({
     id:image.id,src:image.url,url:image.url,thumbnail:image.thumbnail,source:image.foreign_landing_url,
@@ -702,17 +710,47 @@ async function findOpenverseImages(word,page=1){
     licenseUrl:image.license_url
   }));
 }
+async function findWikimediaImages(word,page=1){
+  const params=new URLSearchParams({action:'query',format:'json',origin:'*',generator:'search',gsrnamespace:'6',
+    gsrsearch:`${word} filetype:bitmap|drawing`,gsrlimit:'6',gsroffset:String((page-1)*6),
+    prop:'imageinfo',iiprop:'url|extmetadata',iiurlwidth:'320',iiextmetadatafilter:'ObjectName|Artist|LicenseShortName|LicenseUrl'});
+  const data=await fetchJSON(`https://commons.wikimedia.org/w/api.php?${params}`,'Wikimedia Commons');
+  const text=html=>{const d=document.createElement('div');d.innerHTML=html||'';return d.textContent.trim()};
+  return Object.values(data.query?.pages||{}).sort((a,b)=>a.index-b.index).map(p=>{
+    const info=p.imageinfo?.[0],meta=info?.extmetadata||{};
+    if(!info?.thumburl||!info.descriptionurl)return null;
+    return{
+      id:`wm-${p.pageid}`,src:info.url,url:info.url,thumbnail:info.thumburl,source:info.descriptionurl,
+      title:text(meta.ObjectName?.value)||p.title.replace(/^File:|\.\w+$/g,''),creator:text(meta.Artist?.value),
+      license:text(meta.LicenseShortName?.value)||'Voir la page',licenseUrl:meta.LicenseUrl?.value||info.descriptionurl
+    };
+  }).filter(Boolean);
+}
+const FINDERS={openverse:findOpenverseImages,wikimedia:findWikimediaImages};
 async function searchCardImages(word,page=1){
   state.imageResults[word]=null;
   state.imagePages[word]=page;
   delete state.imageErrors[word];
   render();
   try{
-    state.imageResults[word]=await findOpenverseImages(word,page);
-    if(page>1&&!state.imageResults[word].length)state.imageErrors[word]='Il n’y a pas d’autres images pour ce mot.';
+    if(page===1){
+      // Openverse d'abord ; Wikimedia Commons prend le relais en cas de panne ou d'absence de résultat.
+      let results=[],firstError=null;
+      for(const provider of ['openverse','wikimedia']){
+        try{results=await FINDERS[provider](word,1)}
+        catch(error){firstError??=error;results=[]}
+        state.imageProviders[word]=provider;
+        if(results.length)break;
+      }
+      if(!results.length&&firstError?.unavailable)throw firstError;
+      state.imageResults[word]=results;
+    }else{
+      state.imageResults[word]=await FINDERS[state.imageProviders[word]||'openverse'](word,page);
+      if(!state.imageResults[word].length)state.imageErrors[word]='Il n’y a pas d’autres images pour ce mot.';
+    }
   }catch(error){
     state.imageResults[word]=[];
-    state.imageErrors[word]=page>1?'Il n’y a pas d’autres images pour ce mot.':`Erreur de recherche : ${error.message}`;
+    state.imageErrors[word]=page>1&&!error.unavailable?'Il n’y a pas d’autres images pour ce mot.':`${error.message} Réessaie dans quelques minutes, ou ajoute une image depuis ton appareil.`;
   }
   render();
 }
