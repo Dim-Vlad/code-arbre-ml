@@ -243,7 +243,7 @@ function seg(word,verb){
     if(/^(ai|ei)(?!ll|l$)/.test(s)){push(mk(s.slice(0,2),'LL','ɛ'));continue}
     if(s.startsWith('œu')){push(mk('œu','LL','ø'));continue}
     if(/^eu/.test(s)){
-      if(/^eu[rlfbv]/.test(s)){push(mk('eu','LL','œ'))}else{push(mk('eu','gg','ø'))}
+      if(/^eu[rlfbv]/.test(s)){push(mk('eu','gL','œ'))}else{push(mk('eu','gg','ø'))}
       continue;
     }
     if(s.startsWith('oi')&&!/^oi(ll|l$)/.test(s)){push(mk('oi','gg','wa'));continue}
